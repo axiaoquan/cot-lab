@@ -1,0 +1,29 @@
+# Core
+torch>=2.3.0
+transformers>=4.45.0
+accelerate>=0.34.0
+datasets>=2.20.0
+peft>=0.13.0
+
+# RL training (Module 05)
+trl>=0.12.0
+
+# Utilities
+numpy
+pandas
+matplotlib
+seaborn
+tqdm
+pyyaml
+rich
+
+# Demo
+gradio>=4.40.0
+
+# Tests
+pytest>=7.0
+
+# Optional: for local R1-distill verifier in Module 03
+# (install via: brew install ollama)
+ollama
+requests

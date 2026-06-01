@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.vscode/
+.idea/
+
+# Model artifacts
+*.bin
+*.safetensors
+checkpoints/
+wandb/
+runs/
+
+# Results (commit small JSON / PNG, not raw outputs)
+results/raw/
+results/*.json.gz
+
+# Datasets
+data/cache/
+*.arrow
