@@ -15,7 +15,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
 [![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-MPS-purple.svg)](https://developer.apple.com/metal/pytorch/)
 [![Tests](https://img.shields.io/badge/tests-pytest-success.svg)](#-tests)
-[![Status: WIP](https://img.shields.io/badge/status-WIP-orange.svg)](#)
+[![Status: results filled](https://img.shields.io/badge/status-results%20filled-success.svg)](#-master-comparison-table)
 
 ---
 
@@ -77,11 +77,11 @@ pip install -r requirements.txt && python scripts/smoke_test.py
 
 | Module | Method | Paper | Status |
 |---|---|---|---|
-| [01](modules/01_zero_shot_cot/) | Zero-shot CoT (Direct vs CoT) | Wei 2022 / Kojima 2022 | 🟡 framework |
-| [02](modules/02_self_consistency/) | Self-Consistency | Wang ICLR 2023 | 🟡 framework |
-| [03](modules/03_bon_verifier/) | Best-of-N + Verifier | Lightman 2024 | 🟡 framework |
-| [04](modules/04_tree_of_thoughts/) | Tree of Thoughts (24-game) | Yao NeurIPS 2023 | 🟡 framework |
-| [05](modules/05_grpo_lora/) | GRPO LoRA (R1-Zero mini) | DeepSeek 2025 | 🟡 framework |
+| [01](modules/01_zero_shot_cot/) | Zero-shot CoT (Direct vs CoT) | Wei 2022 / Kojima 2022 | 🟢 results filled |
+| [02](modules/02_self_consistency/) | Self-Consistency | Wang ICLR 2023 | 🟢 results filled |
+| [03](modules/03_bon_verifier/) | Best-of-N + Verifier | Lightman 2024 | 🟢 results filled |
+| [04](modules/04_tree_of_thoughts/) | Tree of Thoughts (24-game) | Yao NeurIPS 2023 | 🟢 results filled |
+| [05](modules/05_grpo_lora/) | GRPO LoRA (R1-Zero mini) | DeepSeek 2025 | 🟢 results filled |
 
 > 🟢 results filled  ·  🟡 framework only, results pending  ·  ⏳ not started
 
@@ -89,19 +89,25 @@ pip install -r requirements.txt && python scripts/smoke_test.py
 
 ## 📊 Master Comparison Table
 
-> 📌 _Numbers are placeholders. Each module fills its own row after experiments complete._
+> ✅ _Real results from runs on an Apple Silicon Mac (Qwen2.5-1.5B-Instruct, GSM8K). See [`docs/EXPERIMENT_REPORT.md`](docs/EXPERIMENT_REPORT.md) for full analysis._
 
-| Method | GSM8K Acc. | Avg Latency | Trainable? | Mac-friendly? |
+| Method | GSM8K Acc. | Setup | Trainable? | Mac-friendly? |
 |---|---|---|---|---|
-| Direct (no CoT) | XX.X% | 1× | — | ✅ |
-| Zero-shot CoT | XX.X% | 3× | — | ✅ |
-| Self-Consistency (N=32) | XX.X% | 32× | — | ✅ |
-| Best-of-N + Verifier (N=16) | XX.X% | 16× | RM only | ✅ |
-| Tree of Thoughts (24-game) | XX.X% | ~100× | — | ✅ |
-| **GRPO LoRA (ours)** | **XX.X%** | 5× | yes (1×GPU) | ✅ |
-| DeepSeek-R1-Distill-7B (ref) | XX.X% | 8× | — | ✅ via ollama |
+| Direct (no CoT) | 21.0% | greedy, n=200 | — | ✅ |
+| Zero-shot CoT | 66.0% | greedy, n=200 | — | ✅ |
+| **Self-Consistency (N=32)** | **78.0%** ⭐ | T=0.8, n=100 | — | ✅ |
+| Best-of-N + Verifier (N=8) | 54.0% | R1-7B judge, n=50 | RM only | ✅ via ollama |
+| Tree of Thoughts (24-game) | 0/5 solved | beam=5, depth=3 | — | ✅ |
+| **GRPO LoRA (ours)** | **61.5%** | 500 steps (~6.5h), n=200 | yes (LoRA 0.28%) | ✅ |
 
-After running modules, regenerate:
+**Three findings worth noting** (details in the report):
+1. 🏆 **Self-consistency wins** — plain sampling + majority vote beats every "fancier" method.
+2. ⚠️ **BoN < single CoT** — an unstable R1 verifier (reasoning leaks into score parsing) drags Best-of-N *below* a single greedy CoT pass. The verifier is the ceiling.
+3. ⚠️ **Small-scale RL didn't help** — 500 GRPO steps on a 1.5B + LoRA setup landed at 61.5% (below the 66% base), with ~0 reflection emergence. Reasoning gains are not a free lunch.
+
+> Module 03 (verifier score parsing) and Module 04 (ToT beam-search early-exit + float tolerance) have known fixable issues documented in the report; numbers above reflect the as-run baseline.
+
+Regenerate the master table image after runs:
 ```bash
 make report       # writes results/master_table.png
 ```
