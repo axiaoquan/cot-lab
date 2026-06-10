@@ -23,7 +23,7 @@ def load_gsm8k(split: str = "test", n: int | None = None, cache_dir: str | None 
     # Lazy import so unit tests that don't need the network can still import this module.
     from datasets import load_dataset
 
-    ds = load_dataset("gsm8k", "main", split=split, cache_dir=cache_dir)
+    ds = load_dataset("openai/gsm8k", "main", split=split, cache_dir=cache_dir)
     if n is not None:
         ds = ds.select(range(min(n, len(ds))))
     for ex in ds:
